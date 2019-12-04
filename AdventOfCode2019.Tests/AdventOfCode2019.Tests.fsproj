@@ -6,8 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Puzzle02.Tests.fs" />
     <Compile Include="Puzzle01.Tests.fs" />
   </ItemGroup>
+
+  <ItemGroup />
 
   <ItemGroup>
     <PackageReference Include="xunit" Version="2.4.1" />
