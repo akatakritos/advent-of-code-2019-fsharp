@@ -22,6 +22,10 @@ let puzzle02 () =
     let result = Puzzle02.execute state0
     printfn "The first index result is %d" result
 
+    let nounVerb = Puzzle02.calculateNounVerb input
+    let product = 100 * nounVerb.noun + nounVerb.verb
+    printfn "The inputs are %d, %d => %d" nounVerb.noun nounVerb.verb product
+
 
 [<EntryPoint>]
 let main argv =

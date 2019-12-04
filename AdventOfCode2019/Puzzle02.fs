@@ -73,3 +73,29 @@ let rec execute state =
         | Complete result -> result
         | Abort command -> failwith (sprintf "Bad command: '%d'" command)
     
+
+let executeWithState input noun verb =
+    let state0 = createState input
+    Array.set state0.data 1 noun
+    Array.set state0.data 2 verb
+    execute state0
+
+type NounVerb = {
+    noun: int;
+    verb: int;
+}
+
+let calculateNounVerb input =
+    let EXPECTED = 19690720;
+
+    let nouns = seq { 0..99 }
+    let verbs = seq { 0..99 }
+
+    let result = 
+        nouns
+        |> Seq.collect (fun n -> verbs |> Seq.map (fun v -> (n, v)))
+        |> Seq.map (fun (n, v) -> (n, v, (executeWithState input n v)))
+        |> Seq.find (fun (_, _, result) -> result = EXPECTED)
+
+    let (noun, verb, _) = result
+    { noun = noun; verb = verb;}
