@@ -1,24 +1,25 @@
 ﻿module Puzzle03Tests
 open Xunit
 open Puzzle03
+open FsUnit.Xunit
 
 [<Fact>]
 let ``parses a command`` () =
     let result = parseInstruction "U23"
-    Assert.Equal(Up, result.Direction)
-    Assert.Equal(23, result.Distance)
+
+    result |> should equal { Direction = Up; Distance = 23 }
 
 [<Fact>]
 let ``parses multiple commands`` () =
     let result = parseInstructions "L1,R2,U3,D4" |> Seq.toArray
-    Assert.Equal<Instruction[]>(
+
+    result |> should equal 
         [| 
             { Direction = Left; Distance = 1};
             { Direction= Right; Distance = 2};
             { Direction=Up; Distance=3};
             { Direction=Down; Distance=4};
-        |],
-        result)
+        |]
 
 [<Fact>]
 let ``traceWire finds the correct sequence of points`` () =
@@ -34,12 +35,13 @@ let ``traceWire finds the correct sequence of points`` () =
         { X = 1; Y = -1 };
     |]
 
-    Assert.Equal<Point[]>(expected, result)
+    result |> should equal expected
+
 
 [<Fact>]
 let ``manhattanDistance`` () =
     let result = manhattanDistance { X = 3; Y = 3 } Origin
-    Assert.Equal(6, result)
+    result |> should equal 6
 
 [<Fact>]
 let ``minimum distance sample 1`` () =
@@ -47,7 +49,7 @@ let ``minimum distance sample 1`` () =
     let wire2 = parseInstructions "U7,R6,D4,L4"
     
     let result = findMinimumIntersectionDistance wire1 wire2
-    Assert.Equal(6, result)
+    result |> should equal 6
 
 [<Fact>]
 let ``minimum distance sample 2`` () =
@@ -55,7 +57,7 @@ let ``minimum distance sample 2`` () =
     let wire2 = parseInstructions "U62,R66,U55,R34,D71,R55,D58,R83"
     
     let result = findMinimumIntersectionDistance wire1 wire2
-    Assert.Equal(159, result)
+    result |> should equal 159
 
 [<Fact>]
 let ``minimum distance sample 3`` () =
@@ -63,7 +65,7 @@ let ``minimum distance sample 3`` () =
     let wire2 = parseInstructions "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7"
     
     let result = findMinimumIntersectionDistance wire1 wire2
-    Assert.Equal(135, result)
+    result |> should equal 135
 
 [<Fact>]
 let ``travel distance sample 1`` () =
@@ -71,7 +73,7 @@ let ``travel distance sample 1`` () =
     let wire2 = parseInstructions "U7,R6,D4,L4"
     
     let result = findMinimumTravelDistance wire1 wire2
-    Assert.Equal(30, result)
+    result |> should equal 30
 
 [<Fact>]
 let ``travel distance sample 2`` () =
@@ -79,7 +81,7 @@ let ``travel distance sample 2`` () =
     let wire2 = parseInstructions "U62,R66,U55,R34,D71,R55,D58,R83"
     
     let result = findMinimumTravelDistance wire1 wire2
-    Assert.Equal(610, result)
+    result |> should equal 610
 
 [<Fact>]
 let ``travel distance sample 3`` () =
@@ -87,4 +89,4 @@ let ``travel distance sample 3`` () =
     let wire2 = parseInstructions "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7"
     
     let result = findMinimumTravelDistance wire1 wire2
-    Assert.Equal(410, result)
+    result |> should equal 410
