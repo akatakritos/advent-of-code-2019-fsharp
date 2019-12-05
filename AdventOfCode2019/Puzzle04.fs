@@ -6,16 +6,9 @@ let private isProperLength (password:string) =
 
 
 let private hasAdjacentSameDigits (password:string) =
-    let rec hasAdjacentSameDigitRecursive  i =
-        if i = password.Length - 1 then
-            false
-        else if password.[i] = password.[i+1] then
-            true
-        else
-            hasAdjacentSameDigitRecursive (i+1)
-
-    hasAdjacentSameDigitRecursive 0
-
+    password
+    |> Seq.scan (fun (prev, count) item -> if item = prev then (item, count + 1) else (item, 1)) ('_', 0)
+    |> Seq.exists (fun (_, count) -> count > 1)
 
 let private hasDecreasingDigits (password: string) =
     let rec helper i =
@@ -28,15 +21,36 @@ let private hasDecreasingDigits (password: string) =
 
     helper 0
 
+
+let sequenceLengths password =
+    let mutable previous = '_';
+    let mutable count = 0
+    seq {
+        for c in password do
+            if c = previous then 
+                count <- count + 1
+            else 
+                if (previous <> '_') then yield count
+                count <- 1
+
+            previous <- c
+        yield count
+    }
+
+let hasDuplicateSequenceOfLengthTwo (password: string) =
+    sequenceLengths password
+    |> Seq.contains 2
+
+
 let isValidPassword (password: string) =
     isProperLength password && hasAdjacentSameDigits password && not (hasDecreasingDigits password)
 
-let tap (action : 'T -> unit) (value : 'T) : 'T =
-    action value
-    value
+let isValidPassword2 (password:string) =
+    isProperLength password && hasDuplicateSequenceOfLengthTwo password && not (hasDecreasingDigits password)
 
-let countValidPasswordsInRange start stop =
+let countValidPasswords start stop comparer =
     seq { start..stop }
     |> Seq.map string
-    |> Seq.map (fun password -> if isValidPassword password then 1 else 0)
+    |> Seq.map (fun password -> if (comparer password) then 1 else 0)
     |> Seq.sum
+

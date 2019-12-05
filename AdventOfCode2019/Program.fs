@@ -37,8 +37,12 @@ let puzzle03 () =
     printfn "However, the minimum travel distance is %d" travel
 
 let puzzle04 () =
-    let valid = Puzzle04.countValidPasswordsInRange 206938 679128
-    printfn "There are %d valid passwords in the range." valid
+    let START = 206938
+    let STOP = 679128
+    let valid1 = Puzzle04.countValidPasswords START STOP Puzzle04.isValidPassword
+    let valid2 = Puzzle04.countValidPasswords START STOP Puzzle04.isValidPassword2
+    printfn "There are %d valid passwords in the range." valid1
+    printfn "There are %d valid passwords in the range under the new rules." valid2
 
 
 [<EntryPoint>]
