@@ -36,12 +36,17 @@ let puzzle03 () =
     printfn "The minimum distance is %d" distance
     printfn "However, the minimum travel distance is %d" travel
 
+let puzzle04 () =
+    let valid = Puzzle04.countValidPasswordsInRange 206938 679128
+    printfn "There are %d valid passwords in the range." valid
+
 
 [<EntryPoint>]
 let main argv =
 
     // puzzle01 ()
     // puzzle02 ()
-    puzzle03 ()
+    // puzzle03 ()
+    puzzle04 ()
     0
 
