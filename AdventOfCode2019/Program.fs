@@ -26,11 +26,20 @@ let puzzle02 () =
     let product = 100 * nounVerb.noun + nounVerb.verb
     printfn "The inputs are %d, %d => %d" nounVerb.noun nounVerb.verb product
 
+let puzzle03 () =
+    let input = System.IO.File.ReadAllLines("inputs\\puzzle03.txt");
+    let wire1 = Puzzle03.parseInstructions input.[0]
+    let wire2 = Puzzle03.parseInstructions input.[1]
+    let distance = Puzzle03.findMinimumIntersectionDistance wire1 wire2
+
+    printfn "The minimum distance is %d" distance
+
 
 [<EntryPoint>]
 let main argv =
 
-    //puzzle01;
-    puzzle02 ()
+    // puzzle01 ()
+    // puzzle02 ()
+    puzzle03 ()
     0
 
