@@ -31,8 +31,10 @@ let puzzle03 () =
     let wire1 = Puzzle03.parseInstructions input.[0]
     let wire2 = Puzzle03.parseInstructions input.[1]
     let distance = Puzzle03.findMinimumIntersectionDistance wire1 wire2
+    let travel = Puzzle03.findMinimumTravelDistance wire1 wire2
 
     printfn "The minimum distance is %d" distance
+    printfn "However, the minimum travel distance is %d" travel
 
 
 [<EntryPoint>]

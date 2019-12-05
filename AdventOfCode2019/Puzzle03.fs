@@ -71,13 +71,28 @@ let manhattanDistance p0 p1 =
 
 let intersect (a: 'a seq) (b: 'a seq) = a.Intersect(b)
 
+let countDistance (wire: seq<Point>) (point:Point) =
+    wire |> Seq.findIndex (fun p -> p = point)
+
+
 let findMinimumIntersectionDistance wire1 wire2 =
-    let points1 = traceWire wire1
-    let points2 = traceWire wire2
+    let points1 = traceWire wire1 |> Seq.toArray
+    let points2 = traceWire wire2 |> Seq.toArray
     let duplicates = intersect points1 points2
 
     duplicates
     |> Seq.map (fun point -> manhattanDistance point Origin)
     |> Seq.filter (fun distance -> distance > 0)
     |> Seq.min
+
+let findMinimumTravelDistance wire1 wire2 =
+    let points1 = traceWire wire1 |> Seq.toArray
+    let points2 = traceWire wire2 |> Seq.toArray
+    let duplicates = intersect points1 points2
+
+    duplicates
+    |> Seq.filter (fun point -> point <> Origin)
+    |> Seq.map (fun point -> (countDistance points1 point) + (countDistance points2 point))
+    |> Seq.min
+
 
