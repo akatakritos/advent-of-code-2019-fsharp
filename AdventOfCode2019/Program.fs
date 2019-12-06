@@ -44,6 +44,13 @@ let puzzle04 () =
     printfn "There are %d valid passwords in the range." valid1
     printfn "There are %d valid passwords in the range under the new rules." valid2
 
+let puzzle05 () =
+    let computer = Puzzle05.loadProgramFromFile "inputs\\puzzle05.txt"
+    // let computer = Puzzle05.loadProgram "3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9"
+    // let computer = Puzzle05.loadProgram "3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99"
+    let result = Puzzle05.run computer Puzzle05.consoleInputter Puzzle05.consoleOutputter
+    printfn "Done"
+
 
 [<EntryPoint>]
 let main argv =
@@ -51,6 +58,7 @@ let main argv =
     // puzzle01 ()
     // puzzle02 ()
     // puzzle03 ()
-    puzzle04 ()
+    // puzzle04 ()
+    puzzle05 ()
     0
 
