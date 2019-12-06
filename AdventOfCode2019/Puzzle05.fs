@@ -80,33 +80,39 @@ let output (outputter: int -> unit) (computer: Computer) (op: UnaryOperation) =
 let jump computer address =
     { computer with Pointer = address}
 
-let jumpTrue (computer: Computer) (op: JumpOperation) =
+let jumpOp (computer: Computer) (op: JumpOperation) comparer =
     let value = read computer (op.Mode, op.Parameter)
     let address = read computer (op.JumpAddressMode, op.JumpAddress)
-    if value <> 0 then (jump computer address) else (advance computer 3)
+    if comparer value then (jump computer address) else (advance computer 3)
 
-let jumpFalse (computer: Computer) (op: JumpOperation) =
-    let value = read computer (op.Mode, op.Parameter)
-    let address = read computer (op.JumpAddressMode, op.JumpAddress)
-    if value = 0 then (jump computer address) else (advance computer 3)
+
+let private True value = value <> 0
+let private False value = value = 0
+
+let private jumpTrue (computer: Computer) (op: JumpOperation) =
+    jumpOp computer op True
+
+let private jumpFalse (computer: Computer) (op: JumpOperation) =
+    jumpOp computer op False
+
+
+let private LessThanComparison a b = a < b
+let private EqualComparison a b = a = b
+
+let comparison (computer: Computer) (op: BinaryOperation) comparer =
+    let reader = read computer
+    let left = reader (op.LeftMode, op.LeftParameter)
+    let right = reader (op.RightMode, op.RightParamter)
+
+    let result = if (comparer left right) then 1 else 0
+    write computer (op.ResultParameter, result)
+    advance computer 4
 
 let lessThan (computer: Computer) (op: BinaryOperation) =
-    let reader = read computer
-    let left = reader (op.LeftMode, op.LeftParameter)
-    let right = reader (op.RightMode, op.RightParamter)
-
-    let result = if left < right then 1 else 0
-    write computer (op.ResultParameter, result)
-    advance computer 4
+    comparison computer op LessThanComparison
 
 let equalTo (computer: Computer) (op: BinaryOperation) =
-    let reader = read computer
-    let left = reader (op.LeftMode, op.LeftParameter)
-    let right = reader (op.RightMode, op.RightParamter)
-
-    let result = if left = right then 1 else 0
-    write computer (op.ResultParameter, result)
-    advance computer 4
+    comparison computer op EqualComparison
 
 let parseMode instruction (parameter: int) =
     let strippedOpCode = instruction / (100 * int (10.0 ** float parameter));
