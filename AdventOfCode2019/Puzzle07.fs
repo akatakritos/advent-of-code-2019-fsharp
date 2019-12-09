@@ -1,4 +1,5 @@
 ﻿module Puzzle07
+open IntCodeComputer
 
 
 // http://www.fssnip.net/4u/title/Very-Fast-Permutations
@@ -11,19 +12,12 @@ let rec permutations = function
     | x :: xs -> Seq.concat (Seq.map (insertions x) (permutations xs))
 
 
-let sequenceInputter inputs =
-    let mutable l = inputs
-    let inputter' () =
-        let temp = List.head l
-        l <- List.tail l
-        temp
 
-    inputter'
 
 let outputSignal program phaseSettings =
     let run input phase =
         let computer = IntCodeComputer.loadProgram program
-        let inputter = sequenceInputter [ phase; input; ]
+        let inputter = IntCodeComputer.sequenceInputter [ phase; input; ]
         let mutable result = 0
         let outputter r =
             result <- r
@@ -43,6 +37,91 @@ let largestOutputSignal program =
     possiblePhaseSettings
     |> Seq.map execute
     |> Seq.max
-    
+
+type AmpLoop = {
+    a: Computer;
+    b: Computer;
+    c: Computer;
+    d: Computer;
+    e: Computer;
+}
+
+let createAmpLoop program =
+    {
+        a = loadProgram program;
+        b = loadProgram program;
+        c = loadProgram program;
+        d = loadProgram program;
+        e = loadProgram program;
+    }
+
+let private extractComputer = function
+    | PausedForInput computer -> computer
+    | PausedForOutput computer -> computer
+    | Aborted -> failwith "Couldnt extract"
+
+let initalizeComputer computer phase =
+    let state = IntCodeComputer.advanceToIo computer
+    match state with 
+        | PausedForInput computer ->
+            IntCodeComputer.provideInput phase computer |> IntCodeComputer.advanceToIo |> extractComputer
+        | _ -> failwith "initializeComputer did not find a input"
+
+let initializeComputers phaseSettings amps =
+    match phaseSettings with
+        | (a::b::c::d::e::_) ->
+            {
+                amps with 
+                a = initalizeComputer amps.a a;
+                b = initalizeComputer amps.b b;
+                c = initalizeComputer amps.c c;
+                d = initalizeComputer amps.d d;
+                e = initalizeComputer amps.e e;
+            }
+            
+        | _ -> failwith "bad phase settings"
 
 
+let runCycle (amp: IntCodeComputer.Computer) input =
+    amp 
+    |> IntCodeComputer.advanceToIo
+    |> extractComputer
+    |> IntCodeComputer.provideInput input
+    |> IntCodeComputer.advanceToIo
+    |> extractComputer
+    |> IntCodeComputer.retrieveOutput
+
+
+type RunLoopResult =
+    | Continue of AmpLoop * int
+    | Abort of int
+
+let runLoop amps aInput =
+    let (a, aOutput) = runCycle amps.a aInput
+    let (b, bOutput) = runCycle amps.b aOutput
+    let (c, cOutput) = runCycle amps.c bOutput
+    let (d, dOutput) = runCycle amps.d cOutput
+    let (e, eOutput) = runCycle amps.e dOutput
+
+    match IntCodeComputer.advanceToIo e with
+        | IntCodeComputer.PausedForOutput e' 
+        | IntCodeComputer.PausedForInput e' -> Continue ({ a = a; b = b; c = c; d = d; e = e'; }, eOutput)
+        | IntCodeComputer.Aborted -> Abort eOutput
+
+let feedbackSignal program phaseSettings =
+    let amps = createAmpLoop program |> initializeComputers phaseSettings
+
+    let rec recurse amps aInput =
+        match runLoop amps aInput with
+            | Continue (a, nextInput) -> recurse a nextInput
+            | Abort result -> result
+
+    recurse amps 0
+
+let maxFeedbackSignal program = 
+    let execute = feedbackSignal program
+    let phaseSettingPermutations = permutations [5;6;7;8;9]
+
+    phaseSettingPermutations
+    |> Seq.map execute
+    |> Seq.max

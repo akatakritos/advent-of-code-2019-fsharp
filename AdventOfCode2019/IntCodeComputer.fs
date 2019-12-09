@@ -184,6 +184,15 @@ let consoleInputter () =
 
 let consoleOutputter n = printfn "%d" n
 
+let sequenceInputter inputs =
+    let mutable l = inputs
+    let inputter' () =
+        let temp = List.head l
+        l <- List.tail l
+        temp
+
+    inputter'
+
 
 let loadProgram (instructionString: string) =
     let memory = 
@@ -201,6 +210,60 @@ type TickResult =
     | Continue of Computer
     | Abort
 
+type IoTickResult =
+    | Continue of Computer
+    | OutputPause of Computer
+    | InputPause of Computer
+    | Abort
+
+type ComputerState =
+    | PausedForInput of Computer
+    | PausedForOutput of Computer
+    | Aborted
+
+let advanceToIo computer =
+    let tick computer =
+       let instruction = parseInstruction computer
+       match instruction with
+           | Multiply op -> Continue (multiply computer op)
+           | Add op -> Continue (add computer op)
+           | Input op -> InputPause computer
+           | Output op -> OutputPause computer
+           | JumpTrue op -> Continue (jumpTrue computer op)
+           | JumpFalse op -> Continue (jumpFalse computer op)
+           | LessThan op -> Continue (lessThan computer op)
+           | Equals op -> Continue (equalTo computer op)
+           | Halt -> Abort
+
+    let rec recurse computer =
+       let result = tick computer
+       match result with
+           | Continue c -> recurse c
+           | OutputPause c -> PausedForOutput c
+           | InputPause c -> PausedForInput c
+           | Abort -> Aborted
+
+    recurse computer
+
+let provideInput value computer =
+    let processInput = input (fun () -> value)
+
+    let instruction = parseInstruction computer
+    match instruction with
+        | Input op -> processInput computer op
+        | _ -> failwith "called provideInput when not on an input instruction"
+
+let retrieveOutput computer =
+    let processOutput (op: UnaryOperation) =
+        let value = read computer (op.Mode, op.Parameter)
+        (advance computer 2, value)
+
+    let instruction = parseInstruction computer
+    match instruction with
+        | Output op -> processOutput op
+        | _ -> failwith "called retrieveOutput when not on an output instruction"
+
+    
 
 let run computer inputter outputter =
     let input = input inputter

@@ -64,6 +64,9 @@ let puzzle07 () =
     let part1 = Puzzle07.largestOutputSignal program
     printfn "The largest possible output is %d" part1
 
+    let part2 = Puzzle07.maxFeedbackSignal program
+    printfn "The max possible output from the feedback loop is %d" part2
+
 [<EntryPoint>]
 let main argv =
 
