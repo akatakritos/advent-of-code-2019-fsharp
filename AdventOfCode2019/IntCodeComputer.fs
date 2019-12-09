@@ -6,31 +6,24 @@ type Computer = {
 }
 
 
-let write computer (address, value) =
-    Array.set computer.Memory address value
 
-type ParameterMode = 
-    | PositionMode
-    | ImmediateMode
+type Parameter =
+    | PositionMode of int
+    | ImmediateMode of int
 
 type BinaryOperation = {
-    LeftMode: ParameterMode;
-    LeftParameter: int;
-    RightMode: ParameterMode;
-    RightParamter: int;
-    ResultParameter: int;
+    Left: Parameter
+    Right: Parameter
+    Output: Parameter
 }
 
 type UnaryOperation = {
-    Mode: ParameterMode;
-    Parameter: int;
+    Parameter: Parameter;
 }
 
 type JumpOperation = {
-    Mode: ParameterMode;
-    Parameter: int;
-    JumpAddressMode: ParameterMode
-    JumpAddress: int;
+    Parameter: Parameter;
+    Jump: Parameter;
 }
 
 type OpCode =
@@ -44,20 +37,25 @@ type OpCode =
     | Equals of BinaryOperation
     | Halt
 
+let write computer (output: Parameter, value) =
+    match output with
+    | PositionMode address
+    | ImmediateMode address -> Array.set computer.Memory address value
+
 let advance computer count =
     { computer with Pointer = computer.Pointer + count }
 
-let read computer (mode: ParameterMode, parameter: int) =
-    match mode with
-        | PositionMode -> computer.Memory.[parameter]
-        | ImmediateMode -> parameter
+let read computer parameter =
+    match parameter with
+        | PositionMode value -> computer.Memory.[value]
+        | ImmediateMode value -> value
 
 let applyBinaryOperation (computer: Computer) (op: BinaryOperation) mathOperation =
     let reader = read computer
-    let left = reader (op.LeftMode, op.LeftParameter)
-    let right = reader (op.RightMode, op.RightParamter)
+    let left = reader op.Left
+    let right = reader op.Right
 
-    write computer (op.ResultParameter, mathOperation left right)
+    write computer (op.Output, mathOperation left right)
 
     advance computer 4
 
@@ -73,7 +71,7 @@ let input (inputter: unit -> int) (computer: Computer) (op: UnaryOperation) =
     advance computer 2
 
 let output (outputter: int -> unit) (computer: Computer) (op: UnaryOperation) =
-    let value = read computer (op.Mode, op.Parameter)
+    let value = read computer op.Parameter
     outputter value
     advance computer 2
 
@@ -81,8 +79,8 @@ let jump computer address =
     { computer with Pointer = address}
 
 let jumpOp (computer: Computer) (op: JumpOperation) comparer =
-    let value = read computer (op.Mode, op.Parameter)
-    let address = read computer (op.JumpAddressMode, op.JumpAddress)
+    let value = read computer op.Parameter
+    let address = read computer op.Jump
     if comparer value then (jump computer address) else (advance computer 3)
 
 
@@ -101,11 +99,11 @@ let private EqualComparison a b = a = b
 
 let comparison (computer: Computer) (op: BinaryOperation) comparer =
     let reader = read computer
-    let left = reader (op.LeftMode, op.LeftParameter)
-    let right = reader (op.RightMode, op.RightParamter)
+    let left = reader op.Left
+    let right = reader op.Right
 
     let result = if (comparer left right) then 1 else 0
-    write computer (op.ResultParameter, result)
+    write computer (op.Output, result)
     advance computer 4
 
 let lessThan (computer: Computer) (op: BinaryOperation) =
@@ -132,11 +130,9 @@ let parseBinaryOperation computer =
     let rightMode = parseMode instruction 1
 
     { 
-        LeftMode = leftMode;
-        LeftParameter = leftParam;
-        RightMode = rightMode;
-        RightParamter = rightParam;
-        ResultParameter = outputParam
+        Left = leftMode leftParam
+        Right = rightMode rightParam
+        Output = ImmediateMode outputParam
     }
 
 let parseUnaryOperation computer =
@@ -146,8 +142,7 @@ let parseUnaryOperation computer =
     let mode = parseMode instruction 0
 
     {
-        Mode = mode;
-        Parameter = param
+        Parameter = mode param
     }
 
 let parseJumpOperation computer =
@@ -158,10 +153,8 @@ let parseJumpOperation computer =
     let addressMode = parseMode instruction 1
 
     {
-        Parameter = parameter;
-        Mode = parameterMode;
-        JumpAddress = address;
-        JumpAddressMode = addressMode;
+        Parameter = parameterMode parameter
+        Jump = addressMode address
     }
 
 let parseInstruction computer =
@@ -255,7 +248,7 @@ let provideInput value computer =
 
 let retrieveOutput computer =
     let processOutput (op: UnaryOperation) =
-        let value = read computer (op.Mode, op.Parameter)
+        let value = read computer op.Parameter
         (advance computer 2, value)
 
     let instruction = parseInstruction computer
@@ -272,21 +265,21 @@ let run computer inputter outputter =
     let tick computer =
         let instruction = parseInstruction computer
         match instruction with
-            | Multiply op -> Continue (multiply computer op)
-            | Add op -> Continue (add computer op)
-            | Input op -> Continue (input computer op)
-            | Output op -> Continue (output computer op)
-            | JumpTrue op -> Continue (jumpTrue computer op)
-            | JumpFalse op -> Continue (jumpFalse computer op)
-            | LessThan op -> Continue (lessThan computer op)
-            | Equals op -> Continue (equalTo computer op)
-            | Halt -> Abort
+            | Multiply op -> TickResult.Continue (multiply computer op)
+            | Add op -> TickResult.Continue (add computer op)
+            | Input op -> TickResult.Continue (input computer op)
+            | Output op -> TickResult.Continue (output computer op)
+            | JumpTrue op -> TickResult.Continue (jumpTrue computer op)
+            | JumpFalse op -> TickResult.Continue (jumpFalse computer op)
+            | LessThan op -> TickResult.Continue (lessThan computer op)
+            | Equals op -> TickResult.Continue (equalTo computer op)
+            | Halt -> TickResult.Abort
 
     let rec recurse computer =
         let result = tick computer
         match result with
-            | Continue c -> recurse c
-            | Abort -> computer
+            | TickResult.Continue c -> recurse c
+            | TickResult.Abort -> computer
 
     recurse computer
 
