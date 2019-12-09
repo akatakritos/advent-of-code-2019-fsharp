@@ -51,6 +51,13 @@ let puzzle05 () =
     let result = Puzzle05.run computer Puzzle05.consoleInputter Puzzle05.consoleOutputter
     printfn "Done"
 
+let puzzle06 () =
+    let tree = Puzzle06.buildFromFile "inputs\\puzzle06.txt"
+    let total = Puzzle06.totalDepth tree
+    printfn "Total depth of orbits: %d" total
+
+    let distance = Puzzle06.transferDistance tree "YOU" "SAN"
+    printfn "You have to make %A transfers from YOU to SAN" distance
 
 [<EntryPoint>]
 let main argv =
@@ -59,6 +66,7 @@ let main argv =
     // puzzle02 ()
     // puzzle03 ()
     // puzzle04 ()
-    puzzle05 ()
+    // puzzle05 ()
+    puzzle06 ()
     0
 
