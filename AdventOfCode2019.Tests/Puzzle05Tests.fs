@@ -2,6 +2,7 @@
 open Xunit
 open FsUnit.Xunit
 open Puzzle05
+open IntCodeComputer
 
 [<Fact>]
 let ``parseMode - 1`` () =

@@ -3,20 +3,20 @@ open Microsoft.FSharp.Collections
 
 
 type OrbitDefinition = {
-    Object: string;
-    Center: string;
+    name: string;
+    center: string;
 }
 
 let parseDescription (description: string) =
     let parts = description.Split(')');
-    { Object = parts.[1]; Center = parts.[0] }
+    { name = parts.[1]; center = parts.[0] }
 
 type OrbitTree = Map<string, OrbitDefinition>
 
 let buildTree (descriptions: seq<OrbitDefinition>) : OrbitTree =
     let d =
         descriptions
-        |> Seq.map (fun desc -> (desc.Object, desc))
+        |> Seq.map (fun desc -> (desc.name, desc))
 
     new Map<string, OrbitDefinition> (d)
 
@@ -30,19 +30,19 @@ let depth (tree: OrbitTree) item =
         let object = tree.TryFind item
         match object with 
             | None -> count
-            | Some obj -> depth' obj.Center (count + 1)
+            | Some obj -> depth' obj.center (count + 1)
 
     depth' item 0
 
 let depthTo (tree: OrbitTree) root item =
     let rec recurse item count =
         let object = tree.[item]
-        if object.Center = root then
+        if object.center = root then
             count + 1
         else
-            match tree.TryFind(object.Center) with
+            match tree.TryFind(object.center) with
                 | None -> failwithf "Never found parent %A" root
-                | Some parent -> recurse parent.Object (count + 1)
+                | Some parent -> recurse parent.name (count + 1)
 
     recurse item 0
 
@@ -56,9 +56,9 @@ let totalDepth tree =
 
 let ancestors (tree: OrbitTree) node =
     let rec ancestors' l n =
-        match tree.TryFind(n.Center) with
-            | None -> (n.Center :: l)
-            | Some parent -> ancestors' (n.Center :: l) parent
+        match tree.TryFind(n.center) with
+            | None -> (n.center :: l)
+            | Some parent -> ancestors' (n.center :: l) parent
 
     ancestors' [] tree.[node]
 

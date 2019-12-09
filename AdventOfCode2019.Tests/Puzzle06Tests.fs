@@ -6,7 +6,7 @@ open Puzzle06
 [<Fact>]
 let ``parseDescription works`` () =
     let result = parseDescription "A)B"
-    result |> should equal { Object = "B"; Center = "A" }
+    result |> should equal { name = "B"; center = "A" }
 
 let ``depth D`` () =
     let commands = [|
