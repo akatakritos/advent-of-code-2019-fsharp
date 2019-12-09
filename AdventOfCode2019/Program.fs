@@ -67,6 +67,13 @@ let puzzle07 () =
     let part2 = Puzzle07.maxFeedbackSignal program
     printfn "The max possible output from the feedback loop is %d" part2
 
+let puzzle08 () =
+    let data = System.IO.File.ReadAllText("inputs\\puzzle08.txt")
+    let image = Puzzle08.SpaceImage.create 25 6 data
+    Puzzle08.SpaceImage.checksum image |> printfn "The image checksum is %d"
+
+    image |> Puzzle08.SpaceImage.render |> printfn "%s"
+
 [<EntryPoint>]
 let main argv =
 
@@ -76,6 +83,7 @@ let main argv =
     // puzzle04 ()
     // puzzle05 ()
     // puzzle06 ()
-    puzzle07 ()
+    // puzzle07 ()
+    puzzle08 ()
     0
 

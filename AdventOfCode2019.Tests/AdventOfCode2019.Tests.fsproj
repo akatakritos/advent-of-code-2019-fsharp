@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Puzzle08Tests.fs" />
     <Compile Include="Puzzle07Tests.fs" />
     <Compile Include="Puzzle06Tests.fs" />
     <Compile Include="Puzzle05Tests.fs" />
