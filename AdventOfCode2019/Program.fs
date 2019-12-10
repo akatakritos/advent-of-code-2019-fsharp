@@ -84,6 +84,12 @@ let puzzle10 () =
     let visible = Puzzle10.visibleAsteroids map best |> Seq.length
     printfn "Best location is %A with %d visible asteroids" best visible
 
+    let targets = Puzzle10.vaporization map best |> Seq.toArray
+    let (x, y) = targets.[199]
+    let result = x * 100 + y
+    printfn "200th target is (%d, %d) for result %d" x y result
+
+
 
 [<EntryPoint>]
 let main argv =

@@ -108,3 +108,65 @@ let ``Best is 11,13 with 210 other asteroids detected`` () =
     visibleAsteroids map (11, 13) |> Seq.length |> should equal 210
     bestLocation map |> should equal (11,13)
 
+
+[<Fact>]
+let ``vector tests`` () =
+    (createVector (1, 1) (1, 0)).angle |> should equal 0.0
+    (createVector (1, 1) (2, 1)).angle |> should equal 90.0
+    (createVector (1,1) (1, 2)).angle |> should equal 180.0
+    (createVector (1,1) (0, 1)).angle |> should equal 270.0
+    (createVector (0,0) (1,1)).angle |> should equal 135.0
+
+[<Fact>]
+let ``vaporization order 0`` () =
+    let map = loadMap ".#....#####...#..\n\
+    ##...##.#####..##\n\
+    ##...#...#.#####.\n\
+    ..#.....#...###..\n\
+    ..#.#.....#....##\n"
+
+    vaporization map (8, 3) |> Seq.take 5 |> Seq.toArray |> should equal [|
+        (8, 1);
+        (9, 0);
+        (9, 1);
+        (10, 0);
+        (9, 2);
+    |]
+
+[<Fact>]
+let ``11,13 map has right target order`` () =
+    let map = loadMap ".#..##.###...#######\n\
+    ##.############..##.\n\
+    .#.######.########.#\n\
+    .###.#######.####.#.\n\
+    #####.##.#.##.###.##\n\
+    ..#####..#.#########\n\
+    ####################\n\
+    #.####....###.#.#.##\n\
+    ##.#################\n\
+    #####.##.###..####..\n\
+    ..######..##.#######\n\
+    ####.##.####...##..#\n\
+    .#####..#.######.###\n\
+    ##...#.##########...\n\
+    #.##########.#######\n\
+    .####.#.###.###.#.##\n\
+    ....##.##.###..#####\n\
+    .#.#.###########.###\n\
+    #.#.#.#####.####.###\n\
+    ###.##.####.##.#..##\n"
+    
+
+    let targets = vaporization map (11,13) |> Seq.toArray
+    targets.Length |> should equal 299
+    targets.[1 - 1] |> should equal (11,12)
+    targets.[2 - 1] |> should equal (12,1)
+    targets.[3 - 1] |> should equal (12,2)
+    targets.[20 - 1] |> should equal (16,0)
+    targets.[50 - 1] |> should equal (16,9)
+    targets.[100 - 1] |> should equal (10,16)
+    targets.[199 - 1] |> should equal (9,6)
+    targets.[200 - 1] |> should equal (8,2)
+    targets.[201 - 1] |> should equal (10,9)
+    targets.[299 - 1] |> should equal (11,1)
+    

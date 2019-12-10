@@ -67,23 +67,40 @@ let asteroids map =
 //        | Infinite _ -> None
 //        | Finite m -> Some (double(y p) - (m * double(x p)))
 
-type private Vector = {
+let rtod r = r * 180.0 / System.Math.PI
+    
+
+type Vector = {
     dx: int;
     dy: int;
-}
+} with 
+    member this.magnitude = sqrt( double this.dx ** 2.0 + double this.dy ** 2.0)
+    member this.angle = 
+        let a = (atan2 (double this.dy) (double this.dx) |> rtod) + 90.0
+        if a < 0.0 then a + 360.0 else a
 
 let rec gcd a b =
     if b = 0 then a else gcd b (a % b)
 
-let private createVector p0 p1 =
+let createVector p0 p1 =
     let dx = x p1 - x p0;
     let dy = y p1 - y p0;
-    let div = gcd (abs dx) (abs dy)
+    //let div = gcd (abs dx) (abs dy)
 
     {
-        dx = dx / div;
-        dy = dy / div;
+        dx = dx;
+        dy = dy;
     }
+
+let normalize v =
+    let div = gcd (abs v.dx) (abs v.dy)
+
+    {
+        dx = v.dx / div;
+        dy = v.dy / div;
+    }
+
+//part - use polar coordinates to calculate along vector. can use for part 2 by sorting by degrees
 
 let distance (p0: Point) (p1: Point) =
     let dx = double (x p0 - x p1)
@@ -99,11 +116,10 @@ let private walk p0 p1 v =
     }
 
 let isVisible (map: T) (p0: Point) (p1: Point) =
-    let v = createVector p0 p1
+    let v = createVector p0 p1 |> normalize
 
-    let blockers = 
+    let blockers =
        walk p0 p1 v
        |> Seq.filter (fun p -> p <> p1 && map.map.[p] = Occupied)
        |> Seq.length
     blockers = 0
-
