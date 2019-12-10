@@ -18,21 +18,21 @@ let outputSignal program phaseSettings =
     let run input phase =
         let computer = IntCodeComputer.loadProgram program
         let inputter = IntCodeComputer.sequenceInputter [ phase; input; ]
-        let mutable result = 0
+        let mutable result = 0L
         let outputter r =
             result <- r
 
         IntCodeComputer.run computer inputter outputter |> ignore
         result
 
-    let STARTING_INPUT = 0
+    let STARTING_INPUT = 0L
     phaseSettings
     |> List.fold run STARTING_INPUT
     
 
 let largestOutputSignal program =
     let execute = outputSignal program
-    let possiblePhaseSettings = permutations [0; 1; 2; 3; 4;]
+    let possiblePhaseSettings = permutations [0L; 1L; 2L; 3L; 4L;]
 
     possiblePhaseSettings
     |> Seq.map execute
@@ -70,9 +70,8 @@ let initalizeComputer computer phase =
 let initializeComputers phaseSettings amps =
     match phaseSettings with
         | (a::b::c::d::e::_) ->
-            {
-                amps with 
-                a = initalizeComputer amps.a a;
+            { amps with
+                a = (initalizeComputer amps.a a);
                 b = initalizeComputer amps.b b;
                 c = initalizeComputer amps.c c;
                 d = initalizeComputer amps.d d;
@@ -93,8 +92,8 @@ let runCycle (amp: IntCodeComputer.Computer) input =
 
 
 type RunLoopResult =
-    | Continue of AmpLoop * int
-    | Abort of int
+    | Continue of AmpLoop * int64
+    | Abort of int64
 
 let runLoop amps aInput =
     let (a, aOutput) = runCycle amps.a aInput
@@ -116,11 +115,11 @@ let feedbackSignal program phaseSettings =
             | Continue (a, nextInput) -> recurse a nextInput
             | Abort result -> result
 
-    recurse amps 0
+    recurse amps 0L
 
 let maxFeedbackSignal program = 
     let execute = feedbackSignal program
-    let phaseSettingPermutations = permutations [5;6;7;8;9]
+    let phaseSettingPermutations = permutations [5L;6L;7L;8L;9L]
 
     phaseSettingPermutations
     |> Seq.map execute

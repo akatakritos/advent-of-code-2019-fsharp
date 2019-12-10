@@ -74,6 +74,11 @@ let puzzle08 () =
 
     image |> Puzzle08.SpaceImage.render |> printfn "%s"
 
+let puzzle09 () =
+    let computer = IntCodeComputer.loadProgramFromFile "inputs\\puzzle09.txt"
+    IntCodeComputer.run computer IntCodeComputer.consoleInputter IntCodeComputer.consoleOutputter |> ignore
+
+
 [<EntryPoint>]
 let main argv =
 
@@ -84,6 +89,7 @@ let main argv =
     // puzzle05 ()
     // puzzle06 ()
     // puzzle07 ()
-    puzzle08 ()
+    // puzzle08 ()
+    puzzle09 ()
     0
 
