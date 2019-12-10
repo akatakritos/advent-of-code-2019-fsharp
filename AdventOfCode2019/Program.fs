@@ -78,6 +78,12 @@ let puzzle09 () =
     let computer = IntCodeComputer.loadProgramFromFile "inputs\\puzzle09.txt"
     IntCodeComputer.run computer IntCodeComputer.consoleInputter IntCodeComputer.consoleOutputter |> ignore
 
+let puzzle10 () =
+    let map = AsteroidMap.loadMap (System.IO.File.ReadAllText("inputs\\puzzle10.txt"))
+    let best = Puzzle10.bestLocation map
+    let visible = Puzzle10.visibleAsteroids map best |> Seq.length
+    printfn "Best location is %A with %d visible asteroids" best visible
+
 
 [<EntryPoint>]
 let main argv =
@@ -90,6 +96,7 @@ let main argv =
     // puzzle06 ()
     // puzzle07 ()
     // puzzle08 ()
-    puzzle09 ()
+    // puzzle09 ()
+    puzzle10 ()
     0
 
