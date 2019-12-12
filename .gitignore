@@ -380,3 +380,5 @@ healthchecksdb
 MigrationBackup/
 
 # End of https://www.gitignore.io/api/windows,visualstudio
+
+.ionide

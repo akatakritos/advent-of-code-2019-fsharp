@@ -1,16 +1,13 @@
-﻿open System
-
-let puzzle01 () =
-    let sum = fun a b -> a + b
+﻿let puzzle01 () =
 
     Puzzle01.readInput "inputs\\puzzle01.txt"
     |> Seq.map Puzzle01.calculateFuel
-    |> Seq.reduce sum
+    |> Seq.reduce (+)
     |> printfn "the total fuel is %d"
 
     Puzzle01.readInput "inputs\\puzzle01.txt"
     |> Seq.map Puzzle01.calculateExhaustiveFuel
-    |> Seq.reduce sum
+    |> Seq.reduce (+)
     |> printfn "the total exhaustive fuel is %d"
 
 let puzzle02 () =
@@ -37,10 +34,10 @@ let puzzle03 () =
     printfn "However, the minimum travel distance is %d" travel
 
 let puzzle04 () =
-    let START = 206938
-    let STOP = 679128
-    let valid1 = Puzzle04.countValidPasswords START STOP Puzzle04.isValidPassword
-    let valid2 = Puzzle04.countValidPasswords START STOP Puzzle04.isValidPassword2
+    let start = 206938
+    let stop = 679128
+    let valid1 = Puzzle04.countValidPasswords start stop Puzzle04.isValidPassword
+    let valid2 = Puzzle04.countValidPasswords start stop Puzzle04.isValidPassword2
     printfn "There are %d valid passwords in the range." valid1
     printfn "There are %d valid passwords in the range under the new rules." valid2
 
@@ -89,7 +86,11 @@ let puzzle10 () =
     let result = x * 100 + y
     printfn "200th target is (%d, %d) for result %d" x y result
 
+let puzzle11 () =
+    let program = System.IO.File.ReadAllText("inputs\\puzzle11.txt")
+    Puzzle11.countPanels program |> printfn "There are %d painted panels"
 
+    Puzzle11.printRegistration program
 
 [<EntryPoint>]
 let main argv =
@@ -103,6 +104,7 @@ let main argv =
     // puzzle07 ()
     // puzzle08 ()
     // puzzle09 ()
-    puzzle10 ()
+    // puzzle10 ()
+    puzzle11 ()
     0
 

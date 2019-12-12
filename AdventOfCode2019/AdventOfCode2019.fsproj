@@ -1,11 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="AsteroidMap.fs" />
     <Compile Include="Puzzle10.fs" />
@@ -18,34 +15,17 @@
     <Compile Include="Puzzle03.fs" />
     <Compile Include="Puzzle02.fs" />
     <Compile Include="Puzzle01.fs" />
+    <Compile Include="Puzzle11.fs" />
     <Compile Include="Program.fs" />
+
+
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="inputs\puzzle01.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="inputs\puzzle03.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="inputs\puzzle05.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="inputs\puzzle06.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="inputs\puzzle07.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="inputs\puzzle08.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="inputs\puzzle09.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="inputs\puzzle10.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <InputFiles Include="inputs\*.txt" />
   </ItemGroup>
 
+  <Target Name="CopyInputs" AfterTargets="AfterBuild">
+    <Copy SourceFiles="@(InputFiles)" DestinationFolder="$(OutDir)\inputs" SkipUnchangedFiles="True"/>
+  </Target>
 </Project>
