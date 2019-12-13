@@ -109,11 +109,12 @@ type Painter(computer: Computer, initialColor: Color) =
     let turnAndMove direction =
         let direction' = turnDirection robot.direction direction
         let point = robot.position
-        let position' = match direction' with
-            | Left -> { point with x = point.x - 1}
-            | Right -> { point with x = point.x + 1}
-            | Up -> { point with y = point.y + 1 }
-            | Down -> { point with y = point.y - 1 }
+        let position' =
+             match direction' with
+                | Left -> { point with x = point.x - 1}
+                | Right -> { point with x = point.x + 1}
+                | Up -> { point with y = point.y + 1 }
+                | Down -> { point with y = point.y - 1 }
 
         robot <- { robot with direction = direction'; position = position'; }
 

@@ -112,6 +112,12 @@ let puzzle12 () =
         Puzzle12.Moon.parseInitial "<x=-6, y=15, z=-7>"
     |] |> Puzzle12.cyclesUntilReset |> printfn "It takes %d runs to reset";
 
+let puzzle13 () =
+    let program = System.IO.File.ReadAllText("inputs\\puzzle13.txt")
+    //Puzzle13.blockTileCount program |> printfn "THere are %d Block tiles"
+
+    Puzzle13.play program
+
 [<EntryPoint>]
 let main argv =
 
@@ -126,6 +132,7 @@ let main argv =
     // puzzle09 ()
     // puzzle10 ()
     // puzzle11 ()
-    puzzle12 ()
+    // puzzle12 ()
+    puzzle13 ()
     0
 

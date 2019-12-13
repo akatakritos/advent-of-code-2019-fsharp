@@ -19,6 +19,7 @@
     <Compile Include="Puzzle01.Tests.fs" />
     <Compile Include="Puzzle11Tests.fs" />
     <Compile Include="Puzzle12Tests.fs" />
+    <Compile Include="Puzzle13Tests.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FsUnit.xUnit" Version="3.8.0" />
