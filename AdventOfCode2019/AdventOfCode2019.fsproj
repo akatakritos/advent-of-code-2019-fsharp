@@ -16,16 +16,10 @@
     <Compile Include="Puzzle02.fs" />
     <Compile Include="Puzzle01.fs" />
     <Compile Include="Puzzle11.fs" />
+    <Compile Include="Puzzle12.fs" />
     <Compile Include="Program.fs" />
-
-
   </ItemGroup>
-
-  <ItemGroup>
-    <InputFiles Include="inputs\*.txt" />
-  </ItemGroup>
-
   <Target Name="CopyInputs" AfterTargets="AfterBuild">
-    <Copy SourceFiles="@(InputFiles)" DestinationFolder="$(OutDir)\inputs" SkipUnchangedFiles="True"/>
+    <Copy SourceFiles="@(InputFiles)" DestinationFolder="$(OutDir)\inputs" SkipUnchangedFiles="True" />
   </Target>
 </Project>

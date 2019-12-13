@@ -92,6 +92,26 @@ let puzzle11 () =
 
     Puzzle11.printRegistration program
 
+let puzzle12 () =
+    let moons = [|
+        Puzzle12.Moon.parseInitial "<x=-9, y=-1, z=-1>"
+        Puzzle12.Moon.parseInitial "<x=2, y=9, z=5>"
+        Puzzle12.Moon.parseInitial "<x=10, y=18, z=-12>"
+        Puzzle12.Moon.parseInitial "<x=-6, y=15, z=-7>"
+    |]
+
+    for i = 1 to 1000 do
+        Puzzle12.tick moons
+
+    moons |> Puzzle12.totalEnergy |> printfn "The total energy after 1000 runs is %d"
+
+    [|
+        Puzzle12.Moon.parseInitial "<x=-9, y=-1, z=-1>"
+        Puzzle12.Moon.parseInitial "<x=2, y=9, z=5>"
+        Puzzle12.Moon.parseInitial "<x=10, y=18, z=-12>"
+        Puzzle12.Moon.parseInitial "<x=-6, y=15, z=-7>"
+    |] |> Puzzle12.cyclesUntilReset |> printfn "It takes %d runs to reset";
+
 [<EntryPoint>]
 let main argv =
 
@@ -105,6 +125,7 @@ let main argv =
     // puzzle08 ()
     // puzzle09 ()
     // puzzle10 ()
-    puzzle11 ()
+    // puzzle11 ()
+    puzzle12 ()
     0
 
