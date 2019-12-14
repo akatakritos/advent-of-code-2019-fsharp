@@ -118,6 +118,12 @@ let puzzle13 () =
 
     Puzzle13.play program
 
+let puzzle14 () =
+    let tree = System.IO.File.ReadAllText("inputs\\puzzle14.txt") |> Puzzle14.FormulaTree.parse
+    let factory = Puzzle14.NanoFactory(tree)
+    factory.ProduceFuel () |> printfn "Consumed %d ORE"
+    ()
+
 [<EntryPoint>]
 let main argv =
 
@@ -133,6 +139,7 @@ let main argv =
     // puzzle10 ()
     // puzzle11 ()
     // puzzle12 ()
-    puzzle13 ()
+    // puzzle13 ()
+    puzzle14 ()
     0
 
