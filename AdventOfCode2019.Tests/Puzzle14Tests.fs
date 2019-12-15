@@ -50,7 +50,7 @@ let ``NanoFactory calculates ore consumed sample 1 as 31`` () =
         7 A, 1 E => 1 FUEL" |> FormulaTree.parse
 
     let factory = NanoFactory(tree)
-    factory.ProduceFuel () |> should equal 31
+    factory.ProduceFuel () |> should equal 31L
 
 [<Fact>]
 let ``NanoFactory calculates consumed ORE sample 2 as 165`` () =
@@ -64,7 +64,7 @@ let ``NanoFactory calculates consumed ORE sample 2 as 165`` () =
         2 AB, 3 BC, 4 CA => 1 FUEL" |> FormulaTree.parse
 
     let factory = NanoFactory(tree)
-    factory.ProduceFuel () |> should equal 165
+    factory.ProduceFuel () |> should equal 165L
 
 [<Fact>]
 let ``NanoFactory calculates comed ORE for sample 3 at 13312 `` () =
@@ -80,7 +80,25 @@ let ``NanoFactory calculates comed ORE for sample 3 at 13312 `` () =
         3 DCFZ, 7 NZVS, 5 HKGWZ, 10 PSHF => 8 KHKGT" |> FormulaTree.parse
 
     let factory = NanoFactory(tree)
-    factory.ProduceFuel () |> should equal 13312
+    factory.ProduceFuel () |> should equal 13312L
+
+let oneTrillion = 1000000000000L
+
+[<Fact>]
+let ``NanoFactory calculates max FUEL for sample 3 at 82892753`` () =
+    let tree =
+        "157 ORE => 5 NZVS\n\
+        165 ORE => 6 DCFZ\n\
+        44 XJWVT, 5 KHKGT, 1 QDVJ, 29 NZVS, 9 GPVTF, 48 HKGWZ => 1 FUEL\n\
+        12 HKGWZ, 1 GPVTF, 8 PSHF => 9 QDVJ\n\
+        179 ORE => 7 PSHF\n\
+        177 ORE => 5 HKGWZ\n\
+        7 DCFZ, 7 PSHF => 2 XJWVT\n\
+        165 ORE => 2 GPVTF\n\
+        3 DCFZ, 7 NZVS, 5 HKGWZ, 10 PSHF => 8 KHKGT" |> FormulaTree.parse
+
+
+    maxFuelFor tree oneTrillion |> should equal 82892753L
 
 [<Fact>]
 let ``NanoFactory calculates consumed ORE for sample 5 at 180697`` () =
@@ -100,7 +118,7 @@ let ``NanoFactory calculates consumed ORE for sample 5 at 180697`` () =
         |> FormulaTree.parse
 
     let factory = NanoFactory(tree)
-    factory.ProduceFuel () |> should equal 180697
+    factory.ProduceFuel () |> should equal 180697L
 
 [<Fact>]
 let ``NanoFactory calculates consumed ORE for sample 6 at 2210736 `` () =
@@ -125,4 +143,29 @@ let ``NanoFactory calculates consumed ORE for sample 6 at 2210736 `` () =
         |> FormulaTree.parse
 
     let factory = NanoFactory(tree)
-    factory.ProduceFuel () |> should equal 2210736
+    factory.ProduceFuel () |> should equal 2210736L
+
+[<Fact>]
+let ``NanoFactory calculates consumed ORE for sample 6 at 10 fules at something `` () =
+    let tree =
+        "171 ORE => 8 CNZTR\n\
+        7 ZLQW, 3 BMBT, 9 XCVML, 26 XMNCP, 1 WPTQ, 2 MZWV, 1 RJRHP => 4 PLWSL\n\
+        114 ORE => 4 BHXH\n\
+        14 VRPVC => 6 BMBT\n\
+        6 BHXH, 18 KTJDG, 12 WPTQ, 7 PLWSL, 31 FHTLT, 37 ZDVW => 1 FUEL\n\
+        6 WPTQ, 2 BMBT, 8 ZLQW, 18 KTJDG, 1 XMNCP, 6 MZWV, 1 RJRHP => 6 FHTLT\n\
+        15 XDBXC, 2 LTCX, 1 VRPVC => 6 ZLQW\n\
+        13 WPTQ, 10 LTCX, 3 RJRHP, 14 XMNCP, 2 MZWV, 1 ZLQW => 1 ZDVW\n\
+        5 BMBT => 4 WPTQ\n\
+        189 ORE => 9 KTJDG\n\
+        1 MZWV, 17 XDBXC, 3 XCVML => 2 XMNCP\n\
+        12 VRPVC, 27 CNZTR => 2 XDBXC\n\
+        15 KTJDG, 12 BHXH => 5 XCVML\n\
+        3 BHXH, 2 VRPVC => 7 MZWV\n\
+        121 ORE => 7 VRPVC\n\
+        7 XCVML => 6 RJRHP\n\
+        5 BHXH, 4 VRPVC => 5 LTCX"
+        |> FormulaTree.parse
+
+    let factory = NanoFactory(tree)
+    factory.ProduceMultipleFuel 10L |> should equal 21763532L

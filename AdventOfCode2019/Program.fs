@@ -122,7 +122,8 @@ let puzzle14 () =
     let tree = System.IO.File.ReadAllText("inputs\\puzzle14.txt") |> Puzzle14.FormulaTree.parse
     let factory = Puzzle14.NanoFactory(tree)
     factory.ProduceFuel () |> printfn "Consumed %d ORE"
-    ()
+
+    Puzzle14.maxFuelFor tree 1000000000000L |> printfn "With a trillion ore, we can make %d fuel units"
 
 [<EntryPoint>]
 let main argv =

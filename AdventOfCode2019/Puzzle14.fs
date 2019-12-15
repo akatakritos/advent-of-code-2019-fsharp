@@ -1,6 +1,11 @@
 module Puzzle14
 
+[<Struct>]
 type Chemical = Chemical of string
+
+module Chemical =
+    let Fuel = Chemical "FUEL"
+    let Ore = Chemical "ORE"
 
 type Ingredient = {
     chemical: Chemical;
@@ -50,8 +55,8 @@ module FormulaTree =
         |> build
 
 type NanoFactory(tree: FormulaTree) =
-    let mutable stock = new Map<Chemical, int>([])
-    let mutable oreConsumed = 0
+    let mutable stock = new Map<Chemical, int64>([])
+    let mutable oreConsumed = 0L
 
     let setStock c amt =
         stock <- Map.add c amt stock
@@ -60,8 +65,8 @@ type NanoFactory(tree: FormulaTree) =
         match stock.ContainsKey c with
             | true -> stock.[c]
             | false ->
-                setStock c 0
-                0
+                setStock c 0L
+                0L
 
     let incrememntStock c amt =
         let current = getStock c
@@ -69,8 +74,8 @@ type NanoFactory(tree: FormulaTree) =
         setStock c (current + amt)
 
     let decrementStock c amt =
-        if c = Chemical "ORE" then
-            oreConsumed <- oreConsumed + amt
+        if c = Chemical.Ore then
+            oreConsumed <- oreConsumed + int64 amt
             // printfn "ORE consumed +%d to %d" amt oreConsumed
         else
             let current = getStock c
@@ -80,10 +85,10 @@ type NanoFactory(tree: FormulaTree) =
             setStock c (current - amt)
 
 
-    let rec produce chemical amount =
+    let rec produce chemical (amount: int64) =
         // printfn "Asked to produce %d of %A" amount chemical
 
-        if chemical = Chemical "ORE" then
+        if chemical = Chemical.Ore then
             decrementStock chemical amount
             ()
         elif getStock chemical >= amount then
@@ -92,22 +97,49 @@ type NanoFactory(tree: FormulaTree) =
         else
             let formula = tree.[chemical]
 
-            let mutable produced = 0
             let current = getStock chemical
-            while current + produced < amount do
-                // printfn "Making %d of %A" formula.output.quantity chemical
-                for input in formula.inputs do
-                    produce input.chemical input.quantity
-                    if input.chemical <> Chemical "ORE" then
-                        decrementStock input.chemical input.quantity
+            let needToMake = amount - current |> double
+            let batches = ceil (needToMake / (double formula.output.quantity)) |> int64
 
-                produced <- produced + formula.output.quantity
+            // printfn "Making %d of %A" formula.output.quantity chemical
+            for input in formula.inputs do
+                produce input.chemical (int64 input.quantity * batches)
+                if input.chemical <> Chemical.Ore then
+                    decrementStock input.chemical (int64 input.quantity * batches)
+
 
             // printfn "produced %d of %A" produced chemical
-            incrememntStock formula.output.chemical produced
+            incrememntStock formula.output.chemical (int64 formula.output.quantity * batches)
 
 
+    member this.ProduceMultipleFuel (n: int64) =
+        produce Chemical.Fuel n
+        oreConsumed
 
     member this.ProduceFuel () =
-        produce (Chemical "FUEL") 1
-        oreConsumed
+        this.ProduceMultipleFuel 1L
+
+let maxFuelFor tree maxOre =
+    let getOreUsed fuel =
+        let factory = NanoFactory tree
+        factory.ProduceMultipleFuel fuel
+
+    let rec binarySearch min (max: int64) =
+        if min >= max then
+            failwithf "Did not converge"
+
+        let guess = (min + max) / 2L
+        let ore1 = getOreUsed guess
+        let ore2 = getOreUsed (guess+1L)
+        // printfn "trying %d (midpoint of %d and %d) produced %d and guess+1 produced %d" guess min max ore1 ore2
+
+        if ore1 <= maxOre && ore2 > maxOre then
+            guess
+        elif ore1 > maxOre then
+            binarySearch min (guess - 1L)
+        elif ore1 < maxOre then
+            binarySearch (guess + 1L) max
+        else
+            failwith "Shouldnt hit this since we've handled all ore1 cases"
+
+    binarySearch 1L 99999999999L
