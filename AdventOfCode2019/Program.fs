@@ -125,6 +125,10 @@ let puzzle14 () =
 
     Puzzle14.maxFuelFor tree 1000000000000L |> printfn "With a trillion ore, we can make %d fuel units"
 
+let puzzle15 () =
+    let code = System.IO.File.ReadAllText("inputs\\puzzle15.txt")
+    Puzzle15.exploreMaze code |> printfn "It takes %A steps to find the oxygen system"
+
 [<EntryPoint>]
 let main argv =
 
@@ -141,6 +145,7 @@ let main argv =
     // puzzle11 ()
     // puzzle12 ()
     // puzzle13 ()
-    puzzle14 ()
+    // puzzle14 ()
+    puzzle15 ()
     0
 

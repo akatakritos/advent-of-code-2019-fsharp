@@ -139,7 +139,7 @@ let parseBinaryOperation computer =
     let rightMode = parseMode instruction 1
     let outputMode = parseMode instruction 2
 
-    { 
+    {
         Left = leftMode leftParam
         Right = rightMode rightParam
         Output = outputMode outputParam
@@ -182,7 +182,7 @@ let parseInstruction computer =
         | 99 -> Halt
         | _ -> sprintf "Unrecognized instruction: '%d'" instruction |> failwith
 
-let consoleInputter () = 
+let consoleInputter () =
     printfn "Input required:"
     System.Console.ReadLine() |> int64
 
@@ -227,6 +227,17 @@ type ComputerState =
     | PausedForOutput of Computer
     | Aborted
 
+module ComputerState =
+    let unwrapInput s =
+         match s with
+            | PausedForInput c -> c
+            | _ -> failwithf "Expected PuasedForInput but got %A" s
+
+    let unwrapOutput s =
+        match s with
+            | PausedForOutput c -> c
+            | _ -> failwithf "Expected PausedForOutput but got %A" s
+
 let advanceToIo computer =
     let tick computer =
        let instruction = parseInstruction computer
@@ -270,7 +281,7 @@ let retrieveOutput computer =
         | Output op -> processOutput op
         | _ -> failwith "called retrieveOutput when not on an output instruction"
 
-    
+
 
 let run computer inputter outputter =
     let input = input inputter
