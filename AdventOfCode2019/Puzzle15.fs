@@ -73,7 +73,7 @@ type Robot(width: int, height: int) =
 
     do
         Console.Clear()
-        // Console.CursorVisible <- false
+        Console.CursorVisible <- false
         // map.[position.y * width + position.x] <- Explored
         map <- map.Add (position, Explored 0)
         draw position "*"
@@ -106,7 +106,7 @@ type Robot(width: int, height: int) =
         this.Set wall Wall
 
     member this.Move direction =
-        System.Threading.Thread.Sleep(50)
+        System.Threading.Thread.Sleep(5)
         let position' = position |> Position.translate direction
         let step = getStepCount position |> Option.get
 
@@ -121,6 +121,8 @@ type Robot(width: int, height: int) =
     member this.StepCountAtCurrentPosition () =
         getStepCount position
 
+    member this.Position = position
+
 
     member this.UnexploredDirection () =
         if isUnexplored North then Some North
@@ -128,6 +130,8 @@ type Robot(width: int, height: int) =
         elif isUnexplored West then Some West
         elif isUnexplored South then Some South
         else None
+
+    member this.Map = map
 
 let drawstatus cmd =
     Console.CursorLeft <- 0
@@ -181,3 +185,120 @@ let exploreMaze input =
                 None
 
     explore North
+
+type Oxygen(initialPosition) =
+    let mutable position = initialPosition
+
+    member this.Spread direction =
+        position <- position |> Position.translate direction
+
+    member this.Position = position
+
+
+type OxygenCell =
+    | Wall
+    | Empty
+    | Filled
+
+type OxygenExpander(map: Map<Position, Cell>, oxygenPosition) =
+    let mutable seconds = -1
+    let mutable positionQueue = [oxygenPosition]
+    let mutable oxygen =
+        map
+        |> Map.map (fun _ cell ->
+            match cell with
+                | Cell.Wall -> Wall
+                | _ -> Empty
+        )
+
+    let isOpen position =
+        match oxygen.TryFind position with
+            | Some cell -> cell = Empty
+            | None -> false
+
+    let isOpenTo direction position =
+        position |> Position.translate direction |> isOpen
+
+    let setOxygen position =
+        oxygen <- oxygen.Add (position, Filled)
+        Console.SetCursorPosition(position.x, position.y)
+        Console.Write("O")
+
+    member this.Tick () =
+        seconds <- seconds + 1
+        let mutable heads = []
+        for p in positionQueue do
+            setOxygen p
+            if p |> isOpenTo North then
+                heads <- (p |> Position.translate North)::heads
+            if p |> isOpenTo South then
+                heads <- (p |> Position.translate South)::heads
+            if p |> isOpenTo West then
+                heads <- (p |> Position.translate West)::heads
+            if p |> isOpenTo East then
+                heads <- (p |> Position.translate East)::heads
+        positionQueue <- heads
+        positionQueue.Length > 0
+
+    member this.Duration = seconds
+
+
+
+
+
+
+
+
+
+
+
+
+
+let exploreEntireMaze input =
+    let robot = Robot(72, 72)
+    let mutable program = IntCodeComputer.loadProgram input
+
+    let sendCommand cmd =
+        program <- IntCodeComputer.advanceToIo program |> IntCodeComputer.ComputerState.unwrapInput
+        program <- IntCodeComputer.provideInput (cmd |> MovementCommand.toInt64) program
+
+        program <- IntCodeComputer.advanceToIo program |> IntCodeComputer.ComputerState.unwrapOutput
+        let (program', output) = IntCodeComputer.retrieveOutput program
+        program <- program'
+
+        output |> StatusCode.fromInt64
+
+    let mutable oxygenPosition = None
+
+    let rec explore direction =
+        let status = sendCommand direction
+
+        match status with
+            | MovedToTarget
+            | MovedSuccessfully ->
+                robot.Move direction
+
+                if (status = MovedToTarget) then
+                    oxygenPosition <- Some robot.Position
+
+                // try each other direction recursively
+                let mutable dir = robot.UnexploredDirection ()
+                while dir.IsSome do
+                    explore dir.Value
+                    dir <- robot.UnexploredDirection ()
+
+                let backtrack = direction |> MovementCommand.opposite
+                sendCommand backtrack |> ignore // ignore because we know its a safe spot
+                robot.Move backtrack
+
+            | HitWall ->
+                robot.MarkWall direction
+
+    explore North
+
+    let oxygenExpander = OxygenExpander(robot.Map, oxygenPosition.Value)
+
+    while oxygenExpander.Tick() do
+        System.Threading.Thread.Sleep(50)
+
+    printfn "It takes %d seconds to fill the map" oxygenExpander.Duration

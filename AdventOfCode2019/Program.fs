@@ -127,7 +127,8 @@ let puzzle14 () =
 
 let puzzle15 () =
     let code = System.IO.File.ReadAllText("inputs\\puzzle15.txt")
-    Puzzle15.exploreMaze code |> printfn "It takes %A steps to find the oxygen system"
+    // Puzzle15.exploreMaze code |> printfn "It takes %A steps to find the oxygen system"
+    Puzzle15.exploreEntireMaze code
 
 [<EntryPoint>]
 let main argv =
