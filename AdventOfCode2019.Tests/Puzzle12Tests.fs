@@ -94,5 +94,5 @@ let ``cyclesUntilReset is 2772`` () =
         Moon.parseInitial "<x=3, y=5, z=-1>"
     |]
 
-    moons |> cyclesUntilReset |> should equal 2772
+    moons |> cyclesUntilReset |> should equal 2772L
 
