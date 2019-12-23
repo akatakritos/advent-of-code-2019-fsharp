@@ -136,6 +136,12 @@ let puzzle16 () =
     input |> Puzzle16.part1
     input |> Puzzle16.part2
 
+let puzzle17 () =
+    let program = System.IO.File.ReadAllText("inputs\\puzzle17.txt")
+    Puzzle17.puzzle1 program
+
+    Puzzle17.puzzle2 program
+
 [<EntryPoint>]
 let main argv =
 
@@ -154,6 +160,7 @@ let main argv =
     // puzzle13 ()
     // puzzle14 ()
     // puzzle15 ()
-    puzzle16 ()
+    // puzzle16 ()
+    puzzle17 ()
     0
 
