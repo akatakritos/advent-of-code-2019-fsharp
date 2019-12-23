@@ -142,6 +142,25 @@ let puzzle17 () =
 
     Puzzle17.puzzle2 program
 
+let puzzle18 () =
+    let input = System.IO.File.ReadAllText("inputs\\puzzle18.txt")
+    //   "#################\n\
+    //  #i.G..c...e..H.p#\n\
+    //  ########.########\n\
+    //  #j.A..b...f..D.o#\n\
+    //  ########@########\n\
+    //  #k.E..a...g..B.n#\n\
+    //  ########.########\n\
+    //  #l.F..d...h..C.m#\n\
+    //  #################"
+    input
+    |> Puzzle18.part1
+    |> printfn "Steps: %A"
+
+    input
+    |> Puzzle18.part2
+    |> printfn "Steps: %A"
+
 [<EntryPoint>]
 let main argv =
 
@@ -161,6 +180,7 @@ let main argv =
     // puzzle14 ()
     // puzzle15 ()
     // puzzle16 ()
-    puzzle17 ()
+    // puzzle17 ()
+    puzzle18 ()
     0
 

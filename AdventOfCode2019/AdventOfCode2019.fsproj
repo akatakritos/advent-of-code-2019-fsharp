@@ -23,6 +23,7 @@
     <Compile Include="Puzzle16.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="Puzzle17.fs" />
+    <Compile Include="Puzzle18.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <Target Name="CopyInputs" AfterTargets="AfterBuild">
