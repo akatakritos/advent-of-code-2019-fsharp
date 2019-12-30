@@ -28,7 +28,7 @@ let buildFromFile filename : OrbitTree =
 let depth (tree: OrbitTree) item =
     let rec depth' item count =
         let object = tree.TryFind item
-        match object with 
+        match object with
             | None -> count
             | Some obj -> depth' obj.center (count + 1)
 
@@ -47,12 +47,12 @@ let depthTo (tree: OrbitTree) root item =
     recurse item 0
 
 
+
 let totalDepth tree =
     let depthCounter = depth tree
-    tree
-    |> Seq.map (fun def -> def.Key)
-    |> Seq.map depthCounter
-    |> Seq.sum
+
+    Map.toSeq tree
+    |> Seq.sumBy (fst >> depthCounter)
 
 let ancestors (tree: OrbitTree) node =
     let rec ancestors' l n =
@@ -72,7 +72,7 @@ let rec commonAncestor (a1: string list) (a2: string list) =
             recurse (List.tail t1) (List.tail t2) h1
 
     recurse a1 a2 (List.head a1)
-        
+
 
 
 let transferDistance tree a b =

@@ -132,9 +132,11 @@ let findFormula (x1:int, y1:int) (x2:int, y2:int) =
 
     { m = m; b = b; }
 
+[<Literal>]
+let SantaSize = 100
+
 let part2 input =
 
-    let SANTA_SIZE = 100
 
     // let rec binarySearch min max =
     //     let guess = (min + max) / 2
@@ -181,8 +183,8 @@ let part2 input =
     let rec recurse x previousY =
         let y = findY input x previousY
 
-        let x' = x - (SANTA_SIZE - 1)
-        let y' = y + (SANTA_SIZE - 1)
+        let x' = x - (SantaSize - 1)
+        let y' = y + (SantaSize - 1)
 
         printfn "Checking %A to %A" (x, y) (x', y')
 

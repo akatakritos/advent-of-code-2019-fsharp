@@ -27,9 +27,9 @@ let sequenceLengths password =
     let mutable count = 0
     seq {
         for c in password do
-            if c = previous then 
+            if c = previous then
                 count <- count + 1
-            else 
+            else
                 if (previous <> '_') then yield count
                 count <- 1
 
@@ -50,7 +50,6 @@ let isValidPassword2 (password:string) =
 
 let countValidPasswords start stop comparer =
     seq { start..stop }
-    |> Seq.map string
-    |> Seq.map (fun password -> if (comparer password) then 1 else 0)
-    |> Seq.sum
+    |> Seq.sumBy (string >> (fun password -> if comparer password then 1 else 0))
+
 
