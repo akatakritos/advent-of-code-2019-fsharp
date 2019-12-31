@@ -171,6 +171,13 @@ let puzzle19 () =
     |> Puzzle19.part2
     |> printfn "Size: %A"
 
+let puzzle20 () =
+    System.IO.File.ReadAllText("inputs\\puzzle20.txt")
+    |> Puzzle20.DonutMaze.parse
+    |> Puzzle20.dijkstra
+    |> printfn "distance %d"
+
+
 [<EntryPoint>]
 let main argv =
 
@@ -192,6 +199,7 @@ let main argv =
     // puzzle16 ()
     // puzzle17 ()
     // puzzle18 ()
-    puzzle19 ()
+    // puzzle19 ()
+    puzzle20 ()
     0
 

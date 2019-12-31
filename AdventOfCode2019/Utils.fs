@@ -21,8 +21,13 @@ module Point =
             | East -> { point with x = point.x + 1 }
             | West -> { point with x = point.x - 1 }
 
+    let fromTuple (x, y) = { x = x; y = y }
+
 module Chars =
     let between (a: char) (b: char) (x: char) =
         (int a) <= (int x) && (int x) <= (int b)
 
     let upper c = System.Char.ToUpperInvariant(c)
+
+let splitLines (s: string) =
+    s.Split([|"\n"; "\r\n"; "\r"|], System.StringSplitOptions.RemoveEmptyEntries)
