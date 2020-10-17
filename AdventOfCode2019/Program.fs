@@ -172,10 +172,15 @@ let puzzle19 () =
     |> printfn "Size: %A"
 
 let puzzle20 () =
+    // System.IO.File.ReadAllText("inputs\\puzzle20.txt")
+    // |> Puzzle20.DonutMaze.parse
+    // |> Puzzle20.part1
+    // |> printfn "1: distance %d"
+
     System.IO.File.ReadAllText("inputs\\puzzle20.txt")
     |> Puzzle20.DonutMaze.parse
-    |> Puzzle20.dijkstra
-    |> printfn "distance %d"
+    |> Puzzle20.part2
+    |> printfn "2: distance %d"
 
 
 [<EntryPoint>]

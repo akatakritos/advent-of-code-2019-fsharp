@@ -13,7 +13,13 @@ module PortalPointer =
 
 type DonutMazeCell =
     | Empty
-    | Portal of PortalPointer
+    | InsidePortal of PortalPointer
+    | OutsidePortal of PortalPointer
+
+let (|Portal|_|) = function
+    | (InsidePortal p) | (OutsidePortal p) -> Some p
+    | _ -> None
+
 
 type DonutMaze = Map<Point, DonutMazeCell>
 
@@ -84,6 +90,12 @@ module DonutMaze =
                 tryReadPortal rows point d
                 |> Option.map (fun label -> (point, { Exit = p; Name = label }))
 
+        let portalType p =
+            if p.x <= 2 || p.x >= width - 2 || p.y <= 2 || p.y >= height - 2 then
+                OutsidePortal
+            else
+                InsidePortal
+
         seq {
             for y = 0 to height - 1 do
                 for x = 0 to width - 1 do
@@ -95,7 +107,7 @@ module DonutMaze =
                             Direction.all
                             |> List.toSeq
                             |> Seq.choose (fun dir -> checkPortal p dir)
-                            |> Seq.map (fun (p, pointer) -> (p, Portal pointer))
+                            |> Seq.map (fun (p, pointer) -> (p, pointer |> portalType p))
 
                         yield! surroundingPortals
 
@@ -112,10 +124,12 @@ module DonutMaze =
         |> Map.toSeq
         |> Seq.filter isTarget
 
+
     let start maze =
         let cell = findPortals "AA" maze |> Seq.exactlyOne |> snd
         match cell with
-            | Portal ptr -> ptr.Exit
+            | InsidePortal ptr -> ptr.Exit
+            | OutsidePortal ptr -> ptr.Exit
             | _ -> failwithf "couldnt find start point"
 
     let stop maze =
@@ -135,19 +149,28 @@ module DonutMaze =
             |> Seq.filter isOppositePortal
             |> Seq.exactlyOne
 
-        match oppositeCell with
-            | Portal ptr -> ptr.Exit
-            | _ -> failwithf "couldnt find opposite pointer of %A" startingPoint
+        oppositeCell
 
+[<Struct>]
+type VisitLocation = { depth: int; point: Point }
 
-let dijkstra (maze: DonutMaze) =
-    let distances = System.Collections.Generic.Dictionary<Point, int>()
-    let visited = System.Collections.Generic.HashSet<Point>()
-    let queue = System.Collections.Generic.HashSet<Point>(maze |> Seq.map (fun kvp -> kvp.Key))
+type Descender = int -> DonutMazeCell -> int
+
+// https://brilliant.org/wiki/dijkstras-short-path-finder/
+let private dijkstra (maze: DonutMaze) (depthDelta: Descender) =
+    let createFloor depth =
+        maze |> Seq.map (fun kvp -> { depth = depth; point = kvp.Key })
+
+    let distances = System.Collections.Generic.Dictionary<VisitLocation, int>()
+    let visited = System.Collections.Generic.HashSet<VisitLocation>()
+    let queue = System.Collections.Generic.HashSet<VisitLocation>(createFloor 0)
+    let visitedFloor = System.Collections.Generic.Dictionary<int, bool>()
+    // let bestPath = Map<Point, Point> track best previous node, can walk this later to get path
 
     let startPoint = DonutMaze.start maze
     let exitPoint = DonutMaze.stop maze
-    distances.[startPoint] <- 0
+    visitedFloor.Add(0, true);
+    distances.[{ depth = 0; point = startPoint }] <- 0
 
 
     let distance p =
@@ -165,27 +188,50 @@ let dijkstra (maze: DonutMaze) =
         visited.Add v |> ignore
         let dist = distance v
 
-        match maze.[v] with
+        match maze.[v.point] with
             | Empty ->
                 for d in Direction.all do
-                    let next = v |> Point.translate d
-                    if maze.ContainsKey next && not (visited.Contains next) then
+                    let next = { v with point = v.point |> Point.translate d }
+                    if maze.ContainsKey next.point && not (visited.Contains next) then
                         if dist + 1 < distance next then
                             distances.[next] <- dist + 1
+                            // bestPath[v] = next
             | Portal pointer ->
                 if pointer.Name <> "AA" && pointer.Name <> "ZZ" then
-                    let next = DonutMaze.findExitPoint pointer v maze
-                    if maze.ContainsKey next && not (visited.Contains next) then
-                        // portal exits are 0 cost
-                        if dist + 0 < distance next then
-                            distances.[next] <- dist + 0
+                    let nextCell = DonutMaze.findExitPoint pointer v.point maze
+                    match nextCell with
+                        | Portal pointer ->
+                            let newDepth = depthDelta v.depth nextCell
+                            let next = { point = pointer.Exit; depth = newDepth; }
+                            printfn "decend to %d" newDepth
 
-    distances.[exitPoint]
+                            if not (visitedFloor.ContainsKey newDepth) then
+                                createFloor newDepth |> Seq.iter (fun loc -> queue.Add(loc) |> ignore)
+                                visitedFloor.Add(newDepth, true)
+
+                            if maze.ContainsKey next.point && not (visited.Contains next) then
+                                // portal exits are 0 cost
+                                if dist + 0 < distance next then
+                                    distances.[next] <- dist + 0
+                        | _ -> ()
+            | _ -> ()
+
+    distances.[{ depth = 0; point = exitPoint }]
 
 
+let noopDescender depth cell = depth
 
+let recursiveDescender depth cell =
+    match cell with
+        | InsidePortal _ -> depth + 1
+        | OutsidePortal _ -> depth - 1
+        | _ -> depth
 
+let part1 maze =
+    dijkstra maze noopDescender
 
+let part2 maze =
+    dijkstra maze recursiveDescender
 
 
 
